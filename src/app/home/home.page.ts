@@ -98,7 +98,7 @@ export class HomePage implements OnInit {
           // Verificar se a conversão é da moeda de destino para a moeda de origem
           if (this.baseCurrency !== 'USD' && rates[this.baseCurrency]) {
             // Calcular taxa inversa se necessário
-            rate = 1 / rates[this.baseCurrency];
+            rate = rates[this.targetCurrency] / rates[this.baseCurrency];
           }
 
           this.result = this.amount * rate;
