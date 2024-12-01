@@ -1,7 +1,8 @@
 {
   "name": "conversor-moedas",
   "integrations": {
-    "capacitor": {}
+    "capacitor": {},
+    "cordova": {}
   },
   "type": "angular"
 }
