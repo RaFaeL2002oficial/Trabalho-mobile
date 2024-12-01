@@ -20,6 +20,11 @@ export class HomePage implements OnInit {
     this.loadCurrencies();
   }
 
+  // Método para verificar se o usuário está online
+  isOnline(): boolean {
+    return navigator.onLine;
+  }
+
   loadCurrencies() {
     const url = `https://v6.exchangerate-api.com/v6/082f3e4425e88955be41e81f/codes`;
 
@@ -39,38 +44,85 @@ export class HomePage implements OnInit {
   }
 
   convert() {
-    const url = `https://v6.exchangerate-api.com/v6/082f3e4425e88955be41e81f/latest/${this.baseCurrency}`;
+    if (this.isOnline()) {
+      const url = `https://v6.exchangerate-api.com/v6/082f3e4425e88955be41e81f/latest/${this.baseCurrency}`;
 
-    this.http.get(url).subscribe(
-      (data: any) => {
-        const rate = data.conversion_rates?.[this.targetCurrency];
-        if (!rate) {
-          alert('Taxa de câmbio não encontrada para as moedas selecionadas.');
-          return;
+      this.http.get(url).subscribe(
+        (data: any) => {
+          const rate = data.conversion_rates?.[this.targetCurrency];
+          if (!rate) {
+            alert('Taxa de câmbio não encontrada para as moedas selecionadas.');
+            return;
+          }
+
+          // Salvar as taxas de câmbio localmente
+          this.storageService.set('latest_rates', data.conversion_rates);
+          this.result = this.amount * rate;
+
+          // Salvar no histórico
+          const conversion = {
+            base: this.baseCurrency,
+            target: this.targetCurrency,
+            amount: this.amount,
+            result: this.result,
+            date: new Date(),
+          };
+
+          this.storageService.get('history').then((history: any[]) => {
+            history = history || [];
+            history.push(conversion);
+            this.storageService.set('history', history);
+          });
+        },
+        (error) => {
+          console.error('Erro ao acessar a API:', error);
+          alert('Não foi possível acessar a API. Verifique sua conexão ou a chave de API.');
         }
+      );
+    } else {
+      // Usuário está offline: carregar as taxas locais
+      this.storageService
+        .get('latest_rates')
+        .then((rates: any) => {
+          if (!rates || typeof rates !== 'object') {
+            alert('Sem conexão e sem taxas armazenadas.');
+            return;
+          }
 
-        this.result = this.amount * rate;
+          let rate = rates[this.targetCurrency];
+          if (!rate) {
+            alert('Taxa de câmbio não encontrada para as moedas selecionadas.');
+            return;
+          }
 
-        // Salvar no histórico
-        const conversion = {
-          base: this.baseCurrency,
-          target: this.targetCurrency,
-          amount: this.amount,
-          result: this.result,
-          date: new Date(),
-        };
+          // Verificar se a conversão é da moeda de destino para a moeda de origem
+          if (this.baseCurrency !== 'USD' && rates[this.baseCurrency]) {
+            // Calcular taxa inversa se necessário
+            rate = 1 / rates[this.baseCurrency];
+          }
 
-        this.storageService.get('history').then((history: any[]) => {
-          history = history || [];
-          history.push(conversion);
-          this.storageService.set('history', history);
+          this.result = this.amount * rate;
+
+          // Salvar no histórico
+          const conversion = {
+            base: this.baseCurrency,
+            target: this.targetCurrency,
+            amount: this.amount,
+            result: this.result,
+            date: new Date(),
+          };
+
+          this.storageService.get('history').then((history: any[]) => {
+            history = history || [];
+            history.push(conversion);
+            this.storageService.set('history', history);
+          });
+        })
+        .catch((error) => {
+          console.error('Erro ao acessar as taxas locais:', error);
+          alert('Erro ao acessar as taxas armazenadas localmente.');
         });
-      },
-      (error) => {
-        console.error('Erro ao acessar a API:', error);
-        alert('Não foi possível acessar a API. Verifique sua conexão ou a chave de API.');
-      }
-    );
+    }
   }
 
   swapCurrencies() {

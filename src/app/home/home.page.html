@@ -5,11 +5,18 @@
       <ion-button routerLink="/history">
         Histórico
       </ion-button>
-    </ion-buttons>   
+    </ion-buttons>
   </ion-toolbar>
 </ion-header>
 
 <ion-content>
+  <!-- Mensagem de estado offline -->
+  <ion-item *ngIf="!isOnline()" color="warning">
+    <ion-label>
+      Você está offline. Usando taxas de câmbio armazenadas localmente.
+    </ion-label>
+  </ion-item>
+
   <!-- Seleção da moeda de origem -->
   <ion-item>
     <ion-label>Moeda Origem</ion-label>
@@ -32,7 +39,7 @@
 
   <!-- Campo para inserir o valor -->
   <ion-item>
-    <ion-label>Valor</ion-label>
+    <ion-label>Valor:</ion-label>
     <ion-input
       type="number"
       [(ngModel)]="amount"
