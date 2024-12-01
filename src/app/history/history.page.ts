@@ -1,5 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { StorageService } from '../services/storage.service';
+import { NavController } from '@ionic/angular';
 
 @Component({
   selector: 'app-history',
@@ -10,7 +11,7 @@ export class HistoryPage implements OnInit {
 
   history: any[] = [];
 
-  constructor(private storageService: StorageService) { }
+  constructor(private storageService: StorageService, private navCtrl: NavController) { }
 
   ngOnInit() {
     this.loadHistory();
@@ -24,6 +25,10 @@ export class HistoryPage implements OnInit {
   async clearHistory() {
     await this.storageService.set('history', []);
     this.history = [];
+  }
+
+  goBack() {
+    this.navCtrl.navigateBack('/home');
   }
 
 }

@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { StorageService } from '../services/storage.service';
 
@@ -7,21 +7,42 @@ import { StorageService } from '../services/storage.service';
   templateUrl: 'home.page.html',
   styleUrls: ['home.page.scss'],
 })
-export class HomePage {
+export class HomePage implements OnInit {
   baseCurrency = 'USD';
   targetCurrency = 'EUR';
   amount: number = 1;
-  result: number | null = null; // Alterado para aceitar null inicialmente
-  currencies: string[] = ['USD', 'EUR', 'BRL', 'GBP', 'JPY'];
+  result: number | null = null;
+  currencies: string[] = [];
 
   constructor(private http: HttpClient, private storageService: StorageService) {}
+
+  ngOnInit() {
+    this.loadCurrencies();
+  }
+
+  loadCurrencies() {
+    const url = `https://v6.exchangerate-api.com/v6/082f3e4425e88955be41e81f/codes`;
+
+    this.http.get(url).subscribe(
+      (data: any) => {
+        if (data.supported_codes) {
+          this.currencies = data.supported_codes.map((code: any) => code[0]);
+        } else {
+          alert('Não foi possível carregar a lista de moedas.');
+        }
+      },
+      (error) => {
+        console.error('Erro ao acessar a API:', error);
+        alert('Não foi possível acessar a API. Verifique sua conexão ou a chave de API.');
+      }
+    );
+  }
 
   convert() {
     const url = `https://v6.exchangerate-api.com/v6/082f3e4425e88955be41e81f/latest/${this.baseCurrency}`;
 
     this.http.get(url).subscribe(
       (data: any) => {
-        // Acesse a estrutura correta
         const rate = data.conversion_rates?.[this.targetCurrency];
         if (!rate) {
           alert('Taxa de câmbio não encontrada para as moedas selecionadas.');
