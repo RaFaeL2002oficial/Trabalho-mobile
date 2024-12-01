@@ -1,0 +1,27 @@
+<ion-header>
+  <ion-toolbar>
+    <ion-title>Histórico de Conversões</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content>
+  <ion-list *ngIf="history.length > 0; else emptyHistory">
+    <ion-item *ngFor="let item of history">
+      <ion-label>
+        <h3>{{ item.amount }} {{ item.base }}</h3>
+        <p>= {{ item.result | number: '1.2-2' }} {{ item.target }}</p>
+        <p><small>{{ item.date | date: 'short' }}</small></p>
+      </ion-label>
+    </ion-item>
+  </ion-list>
+
+  <ng-template #emptyHistory>
+    <ion-text color="medium">
+      <p style="text-align: center; margin-top: 20px;">Nenhum histórico encontrado.</p>
+    </ion-text>
+  </ng-template>
+
+  <ion-button expand="full" color="danger" (click)="clearHistory()" *ngIf="history.length > 0">
+    Limpar Histórico
+  </ion-button>
+</ion-content>
