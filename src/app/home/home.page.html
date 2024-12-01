@@ -1,20 +1,49 @@
-<ion-header [translucent]="true">
+<ion-header>
   <ion-toolbar>
-    <ion-title>
-      Blank
-    </ion-title>
+    <ion-title>Conversor de Moedas</ion-title>
   </ion-toolbar>
 </ion-header>
 
-<ion-content [fullscreen]="true">
-  <ion-header collapse="condense">
-    <ion-toolbar>
-      <ion-title size="large">Blank</ion-title>
-    </ion-toolbar>
-  </ion-header>
+<ion-content>
+  <!-- Seleção da moeda de origem -->
+  <ion-item>
+    <ion-label>Moeda Origem</ion-label>
+    <ion-select [(ngModel)]="baseCurrency" placeholder="Selecione a moeda">
+      <ion-select-option *ngFor="let currency of currencies" [value]="currency">
+        {{ currency }}
+      </ion-select-option>
+    </ion-select>
+  </ion-item>
 
-  <div id="container">
-    <strong>Ready to create an app?</strong>
-    <p>Start with Ionic <a target="_blank" rel="noopener noreferrer" href="https://ionicframework.com/docs/components">UI Components</a></p>
-  </div>
+  <!-- Seleção da moeda de destino -->
+  <ion-item>
+    <ion-label>Moeda Destino</ion-label>
+    <ion-select [(ngModel)]="targetCurrency" placeholder="Selecione a moeda">
+      <ion-select-option *ngFor="let currency of currencies" [value]="currency">
+        {{ currency }}
+      </ion-select-option>
+    </ion-select>
+  </ion-item>
+
+  <!-- Campo para inserir o valor -->
+  <ion-item>
+    <ion-label>Valor</ion-label>
+    <ion-input
+      type="number"
+      [(ngModel)]="amount"
+      placeholder="Digite o valor"
+    ></ion-input>
+  </ion-item>
+
+  <!-- Botões -->
+  <ion-button expand="full" (click)="convert()">Converter</ion-button>
+  <ion-button expand="full" color="secondary" (click)="swapCurrencies()">Inverter</ion-button>
+
+  <!-- Resultado da conversão -->
+  <ion-card *ngIf="result !== null && result !== undefined">
+    <ion-card-content>
+      Resultado: {{ amount }} {{ baseCurrency }} = 
+      {{ result | number: '1.2-2' }} {{ targetCurrency }}
+    </ion-card-content>
+  </ion-card>
 </ion-content>
